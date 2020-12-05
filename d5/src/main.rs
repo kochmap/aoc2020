@@ -11,11 +11,32 @@ fn main() -> Result<()> {
         .collect();
     let positions = positions(&lines);
     println!("Positions {:#?}", &positions);
+    result_2(positions);
+    // result_1(&positions);
+    Ok(())
+}
+
+fn result_1(positions: &[Position]) {
     println!(
         "Max {:#?}",
         positions.iter().max_by_key(|p| p.position).unwrap()
     );
-    Ok(())
+}
+
+fn result_2(mut positions: Vec<Position>) {
+    positions.sort_by_key(|p| p.position);
+    positions.reverse();
+    println!("{:#?}", positions);
+    let mut missing_seat = Vec::new();
+    for w in positions.windows(2) {
+        if w[0].position - 2 == w[1].position {
+            println!("{:#?}", w);
+            let seat = w[0].position - 1;
+            println!("Seat {:#?}", seat);
+            missing_seat.push(seat);
+        }
+    }
+    println!("Seats {:#?}", missing_seat);
 }
 
 fn positions(lines: &[String]) -> Vec<Position> {
@@ -47,6 +68,7 @@ fn positions(lines: &[String]) -> Vec<Position> {
                 row,
                 column,
                 position: row * 8 + column,
+                line: line.clone(),
             }
         })
         .collect()
@@ -57,6 +79,7 @@ struct Position {
     pub row: usize,
     pub column: usize,
     pub position: usize,
+    pub line: String,
 }
 
 // Start by considering the whole range, rows 0 through 127.
