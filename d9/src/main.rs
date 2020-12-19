@@ -41,9 +41,38 @@ fn sum_exists(number: usize, numbers: &[usize]) -> bool {
     sums.contains(&number)
 }
 
+fn find_wrong_number2(input: &str, previous: usize) -> usize {
+    let numbers: Vec<usize> = input.lines()
+        .filter(|line| !line.trim().is_empty())
+        .map(|line| line.parse::<usize>().unwrap())
+        .collect();
+    let mut wrong: Option<usize> = None;
+    let mut extremum: Option<usize> = None;
+    for (i, number) in numbers.iter().enumerate() {
+        if i < previous {
+            continue;
+        }
+        let start = if i <= previous {
+            0
+        } else {
+            i - previous
+        };
+        if !sum_exists(*number, &numbers[start..i]) {
+            wrong = Some(*number);
+            extremum = Some(extremum_sum(&numbers[start..i]));
+            break;
+        }
+    };
+    extremum.unwrap()
+}
+
+fn extremum_sum(numbers: &[usize]) -> usize {
+    numbers.iter().min().unwrap() + numbers.iter().max().unwrap()
+}
+
 #[cfg(test)]
 mod test {
-    use crate::find_wrong_number;
+    use crate::{find_wrong_number, find_wrong_number2};
 
     #[test]
     fn test1() {
@@ -71,5 +100,33 @@ mod test {
         ";
 
         assert_eq!(find_wrong_number(input, 5), 127)
+    }
+
+    #[test]
+    fn test2() {
+        let input = r"
+35
+20
+15
+25
+47
+40
+62
+55
+65
+95
+102
+117
+150
+182
+127
+219
+299
+277
+309
+576
+        ";
+
+        assert_eq!(find_wrong_number2(input, 5), 62)
     }
 }
